@@ -264,7 +264,7 @@ const UploadPDFPage = () => {
               <div className="text-center">
                 <p className="font-bold">{selectedFile ? selectedFile.name : 'Select PDF'}</p>
                 <p className="text-xs text-slate-500 mt-1">
-                  {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'Max size 10MB'}
+                  {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'Max size 20MB'}
                 </p>
               </div>
             </div>
