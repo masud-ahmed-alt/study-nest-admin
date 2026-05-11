@@ -9,6 +9,8 @@ const PartsPage = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPart, setEditingPart] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [formData, setFormData] = useState({
     subjectId: '',
     titleEn: '',
@@ -86,6 +88,14 @@ const PartsPage = () => {
     }
   };
 
+  const filteredParts = parts.filter(part => {
+    const matchesSearch = part.title.en.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         (part.title.as && part.title.as.toLowerCase().includes(searchTerm.toLowerCase()));
+    const partSubjectId = part.subjectId?._id || part.subjectId;
+    const matchesSubject = !selectedSubject || partSubjectId === selectedSubject;
+    return matchesSearch && matchesSubject;
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -95,11 +105,37 @@ const PartsPage = () => {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="btn-primary flex items-center justify-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <Plus size={20} />
           <span>Add Part</span>
         </button>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Search parts..." 
+            className="input-field pl-12"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full md:w-auto">
+          <Filter size={18} className="text-slate-400 shrink-0" />
+          <select 
+            className="bg-transparent outline-none text-sm font-medium w-full"
+            value={selectedSubject}
+            onChange={(e) => setSelectedSubject(e.target.value)}
+          >
+            <option value="">All Subjects</option>
+            {subjects.map(s => (
+              <option key={s._id} value={s._id}>{s.name.en}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="card overflow-hidden !p-0">
@@ -107,29 +143,34 @@ const PartsPage = () => {
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Part Title</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Subject</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest min-w-[150px]">Part Title</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest min-w-[150px]">Subject</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Created</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan="3" className="p-10 text-center text-slate-500">Loading parts...</td></tr>
-              ) : parts.length === 0 ? (
-                <tr><td colSpan="3" className="p-10 text-center text-slate-500">No parts found.</td></tr>
-              ) : parts.map((part) => (
+                <tr><td colSpan="4" className="p-10 text-center text-slate-500">Loading parts...</td></tr>
+              ) : filteredParts.length === 0 ? (
+                <tr><td colSpan="4" className="p-10 text-center text-slate-500">No parts found.</td></tr>
+              ) : filteredParts.map((part) => (
                 <tr key={part._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                   <td className="px-6 py-5">
                     <div className="font-bold">{part.title.en}</div>
                     <div className="text-xs text-slate-500">{part.title.as || 'N/A'}</div>
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <div className="text-sm font-medium">
                       {subjects.find(s => s._id === (typeof part.subjectId === 'string' ? part.subjectId : part.subjectId._id))?.name?.en || 'Unknown Subject'}
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                    {part.createdAt ? new Date(part.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-') : 'N/A'}
+                  </td>
+                  <td className="px-6 py-5 text-right whitespace-nowrap">
+
+                    <div className="flex items-center justify-end gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleOpenModal(part)}
                         className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 rounded-lg"
@@ -150,6 +191,8 @@ const PartsPage = () => {
           </table>
         </div>
       </div>
+
+
 
       <Modal 
         isOpen={isModalOpen} 

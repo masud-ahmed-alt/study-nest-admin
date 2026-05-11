@@ -71,14 +71,14 @@ const ClassesPage = () => {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="btn-primary flex items-center justify-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <Plus size={20} />
           <span>Add New Class</span>
         </button>
       </div>
 
-      <div className="max-w-md card overflow-hidden !p-0">
+      <div className="max-w-full md:max-w-md card overflow-hidden !p-0">
         <table className="w-full text-left">
           <thead className="bg-slate-50 dark:bg-slate-800/50">
             <tr>
@@ -95,7 +95,7 @@ const ClassesPage = () => {
               <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                 <td className="px-6 py-5 font-bold">{c.name}</td>
                 <td className="px-6 py-5 text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-end gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => handleOpenModal(c)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg">
                       <Edit size={18} />
                     </button>
@@ -109,6 +109,7 @@ const ClassesPage = () => {
           </tbody>
         </table>
       </div>
+
 
       <Modal 
         isOpen={isModalOpen} 

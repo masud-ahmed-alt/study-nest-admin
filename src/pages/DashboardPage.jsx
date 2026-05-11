@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
 import { BookOpen, Layers, FileText, UploadCloud, ArrowUpRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -32,6 +33,7 @@ const StatCard = ({ title, value, icon, color, delay }) => (
 const DashboardPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -51,16 +53,20 @@ const DashboardPage = () => {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl md:text-4xl font-bold">Dashboard</h1>
           <p className="text-slate-500 mt-1">Welcome back, here's what's happening today.</p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
+        <button 
+          onClick={() => navigate('/upload')}
+          className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
+        >
           <UploadCloud size={20} />
           <span>New Upload</span>
         </button>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
@@ -97,7 +103,12 @@ const DashboardPage = () => {
         <div className="lg:col-span-2 card">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold">Recent Uploads</h2>
-            <button className="text-primary-600 font-medium text-sm hover:underline">View All</button>
+            <button 
+              onClick={() => navigate('/chapters')}
+              className="text-primary-600 font-medium text-sm hover:underline"
+            >
+              View All
+            </button>
           </div>
           
           <div className="overflow-x-auto">
@@ -123,8 +134,9 @@ const DashboardPage = () => {
                     </td>
                     <td className="py-4 text-slate-500 dark:text-slate-400">{chapter.subjectId?.name?.en}</td>
                     <td className="py-4 text-slate-500 dark:text-slate-400 text-sm">
-                      {new Date(chapter.createdAt).toLocaleDateString()}
+                      {new Date(chapter.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-')}
                     </td>
+
                     <td className="py-4 text-right">
                       <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-full uppercase tracking-tighter">
                         Uploaded
@@ -140,7 +152,10 @@ const DashboardPage = () => {
         <div className="card h-fit">
           <h2 className="text-xl font-bold mb-6">Quick Actions</h2>
           <div className="space-y-4">
-            <button className="w-full btn-secondary flex items-center gap-4 text-left px-5 py-4 group">
+            <button 
+              onClick={() => navigate('/subjects')}
+              className="w-full btn-secondary flex items-center gap-4 text-left px-5 py-4 group"
+            >
               <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
                 <BookOpen size={20} />
               </div>
@@ -149,7 +164,10 @@ const DashboardPage = () => {
                 <p className="text-xs text-slate-500">Create a new course category</p>
               </div>
             </button>
-            <button className="w-full btn-secondary flex items-center gap-4 text-left px-5 py-4 group">
+            <button 
+              onClick={() => navigate('/upload')}
+              className="w-full btn-secondary flex items-center gap-4 text-left px-5 py-4 group"
+            >
               <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 rounded-lg group-hover:scale-110 transition-transform">
                 <FileText size={20} />
               </div>
@@ -164,5 +182,6 @@ const DashboardPage = () => {
     </div>
   );
 };
+
 
 export default DashboardPage;

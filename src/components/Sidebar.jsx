@@ -7,11 +7,12 @@ import {
   FileText, 
   Upload, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { logout } = useAuth();
 
   const menuItems = [
@@ -24,18 +25,31 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-64 h-screen glass fixed left-0 top-0 flex flex-col z-50 border-r border-slate-200 dark:border-slate-800">
-      <div className="p-8 flex items-center gap-3">
-        <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-600/30">
-          S
+    <div className={`
+      w-64 h-screen glass fixed left-0 top-0 flex flex-col z-50 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+    `}>
+      <div className="p-8 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-600/30">
+            S
+          </div>
+          <div>
+            <h1 className="font-bold text-lg leading-tight">Studynest NE</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Admin Panel</p>
+          </div>
         </div>
-        <div>
-          <h1 className="font-bold text-lg leading-tight">Studynest NE</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Admin Panel</p>
-        </div>
+        
+        {/* Close button for mobile */}
+        <button 
+          onClick={toggleSidebar}
+          className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+        >
+          <X size={20} />
+        </button>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2">
+      <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
         {menuItems.map((item) => (
           <NavLink
             key={item.name}
@@ -57,7 +71,7 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="p-4 mt-auto">
+      <div className="p-4 mt-auto border-t border-slate-100 dark:border-slate-900">
         <button
           onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
@@ -71,3 +85,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

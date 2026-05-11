@@ -9,6 +9,8 @@ const SubjectsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [classes, setClasses] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
   const [formData, setFormData] = useState({
     nameEn: '',
     nameAs: '',
@@ -92,6 +94,14 @@ const SubjectsPage = () => {
     }
   };
 
+  const filteredSubjects = subjects.filter(subject => {
+    const matchesSearch = subject.name.en.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         (subject.name.as && subject.name.as.toLowerCase().includes(searchTerm.toLowerCase()));
+    const subjectClassId = subject.class?._id || subject.class;
+    const matchesClass = !selectedClass || subjectClassId === selectedClass;
+    return matchesSearch && matchesClass;
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -101,25 +111,31 @@ const SubjectsPage = () => {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="btn-primary flex items-center justify-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <Plus size={20} />
           <span>Add Subject</span>
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <div className="flex-1 min-w-[300px] relative">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
             placeholder="Search subjects..." 
             className="input-field pl-12"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800">
-          <Filter size={18} className="text-slate-400" />
-          <select className="bg-transparent outline-none text-sm font-medium">
+        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full md:w-auto">
+          <Filter size={18} className="text-slate-400 shrink-0" />
+          <select 
+            className="bg-transparent outline-none text-sm font-medium w-full"
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+          >
             <option value="">All Classes</option>
             {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
@@ -131,24 +147,25 @@ const SubjectsPage = () => {
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Subject Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest min-w-[200px]">Subject Name</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Class</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Has Parts</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Created</th>
                 <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan="4" className="p-10 text-center text-slate-500">Loading subjects...</td></tr>
-              ) : subjects.length === 0 ? (
-                <tr><td colSpan="4" className="p-10 text-center text-slate-500">No subjects found.</td></tr>
-              ) : subjects.map((subject) => (
+                <tr><td colSpan="5" className="p-10 text-center text-slate-500">Loading subjects...</td></tr>
+              ) : filteredSubjects.length === 0 ? (
+                <tr><td colSpan="5" className="p-10 text-center text-slate-500">No subjects found.</td></tr>
+              ) : filteredSubjects.map((subject) => (
                 <tr key={subject._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                   <td className="px-6 py-5">
                     <div className="font-bold text-slate-800 dark:text-slate-100">{subject.name.en}</div>
                     <div className="text-xs text-slate-500">{subject.name.as || 'N/A'}</div>
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-6 py-5 whitespace-nowrap">
                     <span className="px-3 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-sm font-semibold">
                       {subject.class?.name || 'Unknown'}
                     </span>
@@ -160,8 +177,11 @@ const SubjectsPage = () => {
                       <span className="text-slate-400 text-sm">NO</span>
                     )}
                   </td>
-                  <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                    {subject.createdAt ? new Date(subject.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-') : 'N/A'}
+                  </td>
+                  <td className="px-6 py-5 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleOpenModal(subject)}
                         className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 rounded-lg transition-colors"
@@ -182,6 +202,7 @@ const SubjectsPage = () => {
           </table>
         </div>
       </div>
+
 
       <Modal 
         isOpen={isModalOpen} 

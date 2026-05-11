@@ -132,16 +132,16 @@ const UploadPDFPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">{editId ? 'Edit Chapter' : 'Upload Chapter PDF'}</h1>
-        <p className="text-slate-500">Provide chapter details and upload the PDF file.</p>
+        <h1 className="text-2xl md:text-3xl font-bold">{editId ? 'Edit Chapter' : 'Upload Chapter PDF'}</h1>
+        <p className="text-slate-500 text-sm md:text-base">Provide chapter details and upload the PDF file.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 card">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-semibold ml-1">Chapter Title (EN)</label>
                 <input
@@ -163,7 +163,7 @@ const UploadPDFPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-semibold ml-1">Class</label>
                 <select
@@ -206,18 +206,27 @@ const UploadPDFPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-semibold ml-1">Chapter Number</label>
                 <input
                   type="number"
                   className="input-field"
+                  min="0"
+                  onWheel={(e) => e.target.blur()}
+                  onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
                   value={formData.chapterNumber}
-                  onChange={(e) => setFormData({...formData, chapterNumber: e.target.value})}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || parseInt(val) >= 0) {
+                      setFormData({...formData, chapterNumber: val});
+                    }
+                  }}
                   required
                 />
               </div>
             </div>
+
 
             <div className="pt-4">
               <button 
@@ -240,6 +249,7 @@ const UploadPDFPage = () => {
             </div>
           </form>
         </div>
+
 
         <div className="space-y-6">
           <div className="card h-fit">
