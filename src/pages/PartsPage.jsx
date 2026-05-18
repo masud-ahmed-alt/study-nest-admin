@@ -6,11 +6,13 @@ import Modal from '../components/Modal';
 const PartsPage = () => {
   const [parts, setParts] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPart, setEditingPart] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
   const [formData, setFormData] = useState({
     subjectId: '',
     titleEn: '',
@@ -20,7 +22,17 @@ const PartsPage = () => {
   useEffect(() => {
     fetchParts();
     fetchSubjects();
+    fetchClasses();
   }, []);
+
+  const fetchClasses = async () => {
+    try {
+      const { data } = await axios.get('/api/classes');
+      setClasses(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchParts = async () => {
     try {
@@ -92,8 +104,12 @@ const PartsPage = () => {
     const matchesSearch = part.title.en.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          (part.title.as && part.title.as.toLowerCase().includes(searchTerm.toLowerCase()));
     const partSubjectId = part.subjectId?._id || part.subjectId;
+    const subject = subjects.find(s => s._id === partSubjectId);
+    const subjectClassId = subject ? (subject.class?._id || subject.class) : null;
+    
     const matchesSubject = !selectedSubject || partSubjectId === selectedSubject;
-    return matchesSearch && matchesSubject;
+    const matchesClass = !selectedClass || subjectClassId === selectedClass;
+    return matchesSearch && matchesSubject && matchesClass;
   });
 
   return (
@@ -113,7 +129,7 @@ const PartsPage = () => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
+        <div className="flex-[2] relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
             type="text" 
@@ -123,16 +139,34 @@ const PartsPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full md:w-auto">
+        <div className="flex-1 flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full md:w-auto">
+          <Filter size={18} className="text-slate-400 shrink-0" />
+          <select 
+            className="bg-transparent outline-none text-sm font-medium w-full"
+            value={selectedClass}
+            onChange={(e) => {
+              setSelectedClass(e.target.value);
+              setSelectedSubject('');
+            }}
+          >
+            <option value="" className="dark:bg-slate-900">All Classes</option>
+            {classes.map(c => (
+              <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1 flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 w-full md:w-auto">
           <Filter size={18} className="text-slate-400 shrink-0" />
           <select 
             className="bg-transparent outline-none text-sm font-medium w-full"
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
           >
-            <option value="">All Subjects</option>
-            {subjects.map(s => (
-              <option key={s._id} value={s._id}>{s.name.en}</option>
+            <option value="" className="dark:bg-slate-900">All Subjects</option>
+            {subjects
+              .filter(s => !selectedClass || (s.class?._id || s.class) === selectedClass)
+              .map(s => (
+              <option key={s._id} value={s._id} className="dark:bg-slate-900">{s.name.en}</option>
             ))}
           </select>
         </div>
@@ -161,9 +195,19 @@ const PartsPage = () => {
                     <div className="text-xs text-slate-500">{part.title.as || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="text-sm font-medium">
-                      {subjects.find(s => s._id === (typeof part.subjectId === 'string' ? part.subjectId : part.subjectId._id))?.name?.en || 'Unknown Subject'}
-                    </div>
+                    {(() => {
+                      const subject = subjects.find(s => s._id === (typeof part.subjectId === 'string' ? part.subjectId : part.subjectId._id));
+                      return (
+                        <>
+                          <div className="text-sm font-medium">
+                            {subject?.name?.en || 'Unknown Subject'}
+                          </div>
+                          <div className="text-[10px] uppercase text-slate-400 tracking-wider font-bold">
+                            {subject?.class?.name || 'Unknown Class'}
+                          </div>
+                        </>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                     {part.createdAt ? new Date(part.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-') : 'N/A'}
@@ -208,9 +252,9 @@ const PartsPage = () => {
               onChange={(e) => setFormData({...formData, subjectId: e.target.value})}
               required
             >
-              <option value="">Select a subject</option>
+              <option value="" className="dark:bg-slate-900">Select a subject</option>
               {subjects.map(s => (
-                <option key={s._id} value={s._id}>{s.name.en} ({s.class?.name || 'Unknown'})</option>
+                <option key={s._id} value={s._id} className="dark:bg-slate-900">{s.name.en} ({s.class?.name || 'Unknown'})</option>
               ))}
             </select>
           </div>

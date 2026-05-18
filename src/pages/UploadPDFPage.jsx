@@ -143,28 +143,6 @@ const UploadPDFPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-semibold ml-1">Chapter Title (EN)</label>
-                <input
-                  type="text"
-                  className="input-field"
-                  value={formData.titleEn}
-                  onChange={(e) => setFormData({...formData, titleEn: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold ml-1">Chapter Title (AS)</label>
-                <input
-                  type="text"
-                  className="input-field"
-                  value={formData.titleAs}
-                  onChange={(e) => setFormData({...formData, titleAs: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div className="space-y-2">
                 <label className="text-sm font-semibold ml-1">Class</label>
                 <select
                   className="input-field"
@@ -172,8 +150,8 @@ const UploadPDFPage = () => {
                   onChange={(e) => setFormData({...formData, class: e.target.value})}
                   required
                 >
-                  <option value="">Select Class</option>
-                  {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                  <option value="" className="dark:bg-slate-900">Select Class</option>
+                  {classes.map(c => <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
@@ -184,12 +162,15 @@ const UploadPDFPage = () => {
                   onChange={(e) => setFormData({...formData, subjectId: e.target.value})}
                   required
                 >
-                  <option value="">Select Subject</option>
+                  <option value="" className="dark:bg-slate-900">Select Subject</option>
                   {subjects.filter(s => (s.class?._id || s.class) === formData.class).map(s => (
-                    <option key={s._id} value={s._id}>{s.name.en}</option>
+                    <option key={s._id} value={s._id} className="dark:bg-slate-900">{s.name.en}</option>
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-semibold ml-1">Part (Optional)</label>
                 <select
@@ -198,31 +179,50 @@ const UploadPDFPage = () => {
                   onChange={(e) => setFormData({...formData, partId: e.target.value})}
                   disabled={parts.length === 0}
                 >
-                  <option value="">No Part</option>
+                  <option value="" className="dark:bg-slate-900">No Part</option>
                   {parts.map(p => (
-                    <option key={p._id} value={p._id}>{p.title.en}</option>
+                    <option key={p._id} value={p._id} className="dark:bg-slate-900">{p.title.en}</option>
                   ))}
                 </select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-semibold ml-1">Chapter Number</label>
+                <label className="text-sm font-semibold ml-1">Chapter No.</label>
                 <input
-                  type="number"
-                  className="input-field"
-                  min="0"
-                  onWheel={(e) => e.target.blur()}
-                  onKeyDown={(e) => (e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.preventDefault()}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  autoComplete="off"
+                  className="input-field font-bold"
                   value={formData.chapterNumber}
                   onChange={(e) => {
                     const val = e.target.value;
-                    if (val === '' || parseInt(val) >= 0) {
+                    if (val === '' || /^[0-9]+$/.test(val)) {
                       setFormData({...formData, chapterNumber: val});
                     }
                   }}
                   required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4 md:space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold ml-1">Chapter Title (English)</label>
+                <input
+                  type="text"
+                  className="input-field text-lg md:text-xl font-bold py-3 md:py-4"
+                  value={formData.titleEn}
+                  onChange={(e) => setFormData({...formData, titleEn: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold ml-1">Chapter Title (Assamese)</label>
+                <input
+                  type="text"
+                  className="input-field text-lg md:text-xl font-bold py-3 md:py-4"
+                  value={formData.titleAs}
+                  onChange={(e) => setFormData({...formData, titleAs: e.target.value})}
                 />
               </div>
             </div>

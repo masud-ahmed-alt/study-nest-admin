@@ -136,8 +136,8 @@ const SubjectsPage = () => {
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
           >
-            <option value="">All Classes</option>
-            {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+            <option value="" className="dark:bg-slate-900">All Classes</option>
+            {classes.map(c => <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>)}
           </select>
         </div>
       </div>
@@ -243,8 +243,8 @@ const SubjectsPage = () => {
                 onChange={(e) => setFormData({...formData, class: e.target.value})}
                 required
               >
-                <option value="">Select Class</option>
-                {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                <option value="" className="dark:bg-slate-900">Select Class</option>
+                {classes.map(c => <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-3 pt-8">

@@ -114,8 +114,8 @@ const ChaptersPage = () => {
             value={filter.subjectId}
             onChange={(e) => setFilter({ ...filter, subjectId: e.target.value })}
           >
-            <option value="">All Subjects</option>
-            {subjects.map(s => <option key={s._id} value={s._id}>{s.name.en}</option>)}
+            <option value="" className="dark:bg-slate-900">All Subjects</option>
+            {subjects.map(s => <option key={s._id} value={s._id} className="dark:bg-slate-900">{s.name.en}</option>)}
           </select>
         </div>
         <div className="flex-1 flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800">
@@ -125,8 +125,8 @@ const ChaptersPage = () => {
             value={filter.class}
             onChange={(e) => setFilter({ ...filter, class: e.target.value })}
           >
-            <option value="">All Classes</option>
-            {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+            <option value="" className="dark:bg-slate-900">All Classes</option>
+            {classes.map(c => <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>)}
           </select>
         </div>
       </div>
