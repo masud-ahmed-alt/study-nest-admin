@@ -8,8 +8,9 @@ const ChaptersPage = () => {
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [parts, setParts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ subjectId: '', class: '', search: '' });
+  const [filter, setFilter] = useState({ subjectId: '', class: '', partId: '', search: '' });
   
   // PDF Viewer State
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -20,6 +21,23 @@ const ChaptersPage = () => {
     fetchSubjects();
     fetchClasses();
   }, []);
+
+  useEffect(() => {
+    if (filter.subjectId) {
+      fetchParts(filter.subjectId);
+    } else {
+      setParts([]);
+    }
+  }, [filter.subjectId]);
+
+  const fetchParts = async (subjectId) => {
+    try {
+      const { data } = await axios.get(`/api/parts?subjectId=${subjectId}`);
+      setParts(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchChapters = async () => {
     try {
@@ -64,6 +82,7 @@ const ChaptersPage = () => {
   const filteredChapters = chapters.filter(c => {
     const chapterClassId = typeof c.class === 'object' ? c.class?._id : c.class;
     const chapterSubjectId = typeof c.subjectId === 'object' ? c.subjectId?._id : c.subjectId;
+    const chapterPartId = typeof c.partId === 'object' ? c.partId?._id : c.partId;
     
     const matchesSearch = !filter.search || 
       c.title.en.toLowerCase().includes(filter.search.toLowerCase()) || 
@@ -71,8 +90,9 @@ const ChaptersPage = () => {
     
     const matchesSubject = !filter.subjectId || chapterSubjectId === filter.subjectId;
     const matchesClass = !filter.class || chapterClassId === filter.class;
+    const matchesPart = !filter.partId || chapterPartId === filter.partId;
     
-    return matchesSearch && matchesSubject && matchesClass;
+    return matchesSearch && matchesSubject && matchesClass && matchesPart;
   });
 
   const openViewer = (url, title) => {
@@ -96,7 +116,7 @@ const ChaptersPage = () => {
         </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-[2] relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input 
@@ -111,22 +131,36 @@ const ChaptersPage = () => {
           <Filter size={18} className="text-slate-400 shrink-0" />
           <select
             className="bg-transparent outline-none text-sm font-medium w-full"
-            value={filter.subjectId}
-            onChange={(e) => setFilter({ ...filter, subjectId: e.target.value })}
+            value={filter.class}
+            onChange={(e) => setFilter({ ...filter, class: e.target.value, subjectId: '', partId: '' })}
           >
-            <option value="" className="dark:bg-slate-900">All Subjects</option>
-            {subjects.map(s => <option key={s._id} value={s._id} className="dark:bg-slate-900">{s.name.en}</option>)}
+            <option value="" className="dark:bg-slate-900">All Classes</option>
+            {classes.map(c => <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>)}
           </select>
         </div>
         <div className="flex-1 flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800">
           <Filter size={18} className="text-slate-400 shrink-0" />
           <select
             className="bg-transparent outline-none text-sm font-medium w-full"
-            value={filter.class}
-            onChange={(e) => setFilter({ ...filter, class: e.target.value })}
+            value={filter.subjectId}
+            onChange={(e) => setFilter({ ...filter, subjectId: e.target.value, partId: '' })}
           >
-            <option value="" className="dark:bg-slate-900">All Classes</option>
-            {classes.map(c => <option key={c._id} value={c._id} className="dark:bg-slate-900">{c.name}</option>)}
+            <option value="" className="dark:bg-slate-900">All Subjects</option>
+            {subjects
+              .filter(s => !filter.class || (s.class?._id || s.class) === filter.class)
+              .map(s => <option key={s._id} value={s._id} className="dark:bg-slate-900">{s.name.en}</option>)}
+          </select>
+        </div>
+        <div className="flex-1 flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800">
+          <Filter size={18} className="text-slate-400 shrink-0" />
+          <select
+            className="bg-transparent outline-none text-sm font-medium w-full"
+            value={filter.partId}
+            onChange={(e) => setFilter({ ...filter, partId: e.target.value })}
+            disabled={!filter.subjectId || parts.length === 0}
+          >
+            <option value="" className="dark:bg-slate-900">All Parts</option>
+            {parts.map(p => <option key={p._id} value={p._id} className="dark:bg-slate-900">{p.title.en}</option>)}
           </select>
         </div>
       </div>
